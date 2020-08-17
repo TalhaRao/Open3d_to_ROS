@@ -39,25 +39,6 @@ LEFT = 'left'
 RAD_TO_DEG = 180.0/pi
 DEG_TO_RAD = pi/180.0
 
-trans_0 = np.asarray(
-    [[1, 0, 0, 0],
-     [0, 1, 0, 0],
-     [0, 0, 1, 0],
-     [0, 0, 0, 1]])
-
-
-pm1_trans = np.asarray(
-    [[0.56994855, -0.00120133,  0.82168047,  0.05209416],
-     [0.02044108,  0.99971085, -0.01271574,  0.01544554],
-     [-0.82142628,  0.02404287,  0.56980766, -0.01864517],
-     [0.0,         0.0,          0.0,          1.0]])
-
-# 3rd ICP pm3
-pm3_trans = np.asarray(
-    [[0.5906445,   0.01829783, -0.8067244,  -0.08061128],
-     [-0.00501105,  0.99980676,  0.01900842, -0.02117148],
-     [0.80691634, -0.00718469,  0.59062206, -0.0225304],
-     [0.0, 0.0, 0.0, 1.0]])
 
 # ----------------------------------------------------------------------------------------
 # Converts Transformation Matrix to tf_msg type
@@ -310,79 +291,6 @@ def get_open3d_filter_cloud(cloudIn, voxel_size):
 # --------------------------------------------------------
 # Create Transformation Matrix with roll pitch yaw and x,y,z values
 
-
-def transformationMat(roll, pitch, yaw, x, y, z):
-
-    R11 = cos(pitch)*cos(yaw)
-    R12 = (sin(roll)*sin(pitch)*cos(yaw))-(cos(roll)*sin(yaw))
-    R13 = (cos(roll)*sin(pitch)*cos(yaw))+(sin(roll)*sin(yaw))
-    R21 = cos(pitch)*sin(yaw)
-    R22 = (sin(roll)*sin(pitch)*sin(yaw))+(cos(roll)*cos(yaw))
-    R23 = (cos(roll)*sin(pitch)*sin(yaw))-(sin(roll)*cos(yaw))
-    R31 = -sin(pitch)
-    R32 = sin(roll)*cos(pitch)
-    R33 = cos(roll)*cos(pitch)
-
-    T = np.asarray([[R11, R12, R13, x],
-                    [R21, R22, R23, y],
-                    [R31, R32, R33, z],
-                    [0, 0, 0, 1]])
-
-    return T
-
-# --------------------------------------------------------
-# Create Rotation Matrix with roll pitch yaw values
-
-
-def rotationMat(roll, pitch, yaw):
-
-    R11 = cos(pitch)*cos(yaw)
-    R12 = (sin(roll)*sin(pitch)*cos(yaw))-(cos(roll)*sin(yaw))
-    R13 = (cos(roll)*sin(pitch)*cos(yaw))+(sin(roll)*sin(yaw))
-    R21 = cos(pitch)*sin(yaw)
-    R22 = (sin(roll)*sin(pitch)*sin(yaw))+(cos(roll)*cos(yaw))
-    R23 = (cos(roll)*sin(pitch)*sin(yaw))-(sin(roll)*cos(yaw))
-    R31 = -sin(pitch)
-    R32 = sin(roll)*cos(pitch)
-    R33 = cos(roll)*cos(pitch)
-
-    R = np.asarray([[R11, R12, R13],
-                    [R21, R22, R23],
-                    [R31, R32, R33]])
-
-    return R
-
-
-# --------------------------------------------------------
-# Create Rotation Matrix with roll pitch yaw values
-
-
-def robotMat(trans, glob):
-
-    T11 = trans[0][0]-glob[0][0]+1
-    T12 = trans[0][1]-glob[0][1]
-    T13 = trans[0][2]-glob[0][2]
-    T14 = trans[0][3]-glob[0][3]
-    T21 = trans[1][0]-glob[1][0]
-    T22 = trans[1][1]-glob[1][1]+1
-    T23 = trans[1][2]-glob[1][2]
-    T24 = trans[1][3]-glob[1][3]
-    T31 = trans[2][0]-glob[2][0]
-    T32 = trans[2][1]-glob[2][1]
-    T33 = trans[2][2]-glob[2][2]+1
-    T34 = trans[2][3]-glob[2][3]
-    T41 = trans[3][0]-glob[3][0]
-    T42 = trans[3][1]-glob[3][1]
-    T43 = trans[3][2]-glob[3][2]
-    T44 = trans[3][3]-glob[3][3]+1
-
-    T = np.asarray([[T11, T12, T13, T14],
-                    [T21, T22, T23, T24],
-                    [T31, T32, T33, T34],
-                    [T41, T42, T43, T44]])
-
-    return T
-
 # ----------------------------------------------------------------------------------------
 
 # Custom class for cloud conversion
@@ -523,7 +431,7 @@ class cloud:
         # print('Filtered cloud contains ' + str(self.__pcl_cloud_filter.size) + ' data points from room_scan2.pcd')
 
     # ----------------------------------------------------------------------------------------
-
+    # Crop a pointcloud from right/left by a speecified angle
     def crop_cloud(self, cloudIn, direction, angle):
 
         self.ros_to_points_list(cloudIn)
@@ -560,8 +468,6 @@ class cloud:
         cropped_cloud_array = np.vstack((x_cropped, y_cropped, z_cropped)).T
 
         return cropped_cloud_array
-        # self.__ros_cropped_cloud = cropped_cloud_array
-        # self.__opend3d_cropped_cloud.points = op.Vector3dVector(cropped_cloud_array)
 
     # ----------------------------------------------------------------------------------------
 
